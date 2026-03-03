@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeTogether</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero {
+      text-align: center;
+      max-width: 480px;
+      width: 100%;
+      padding: 2rem;
+    }
+
+    .logo {
+      font-size: 2.8rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 0.5rem;
+    }
+
+    .logo span { color: #6366f1; }
+
+    .tagline {
+      color: #94a3b8;
+      font-size: 1rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .card {
+      background: #1e2130;
+      border: 1px solid #2d3148;
+      border-radius: 1rem;
+      padding: 2rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+      margin-bottom: 0.4rem;
+      text-align: left;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 0.5rem;
+      color: #e2e8f0;
+      font-size: 1rem;
+      margin-bottom: 1.2rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus { border-color: #6366f1; }
+
+    .btn-group {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    button {
+      flex: 1;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    button:active { transform: scale(0.98); }
+
+    .btn-primary {
+      background: #6366f1;
+      color: #fff;
+    }
+
+    .btn-primary:hover { opacity: 0.9; }
+
+    .btn-secondary {
+      background: #2d3148;
+      color: #e2e8f0;
+    }
+
+    .btn-secondary:hover { background: #363b5a; }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: #475569;
+      font-size: 0.8rem;
+      margin: 1.2rem 0;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #2d3148;
+    }
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <div class="logo">Code<span>Together</span></div>
+    <p class="tagline">Real-time collaborative code editing in your browser</p>
+
+    <div class="card">
+      <label for="username">Your name</label>
+      <input id="username" type="text" placeholder="e.g. Alice" maxlength="24" />
+
+      <label for="room-id">Room ID</label>
+      <input id="room-id" type="text" placeholder="e.g. my-team-room" maxlength="48" />
+
+      <div class="btn-group">
+        <button class="btn-primary" id="join-btn">Join Room</button>
+        <button class="btn-secondary" id="create-btn">Create New</button>
+      </div>
+
+      <div class="divider">or share a link</div>
+      <p style="color:#475569;font-size:0.82rem;">
+        Rooms are created automatically — just share the same Room ID with your teammates.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const usernameInput = document.getElementById('username');
+    const roomInput = document.getElementById('room-id');
+
+    // Pre-fill from URL params if present
+    const params = new URLSearchParams(location.search);
+    if (params.get('room')) roomInput.value = params.get('room');
+
+    function randomId() {
+      return Math.random().toString(36).slice(2, 8);
+    }
+
+    function navigate() {
+      const username = usernameInput.value.trim() || 'Anonymous';
+      const room = roomInput.value.trim();
+      if (!room) { roomInput.focus(); return; }
+      const url = `/editor.html?room=${encodeURIComponent(room)}&user=${encodeURIComponent(username)}`;
+      location.href = url;
+    }
+
+    document.getElementById('join-btn').addEventListener('click', navigate);
+
+    document.getElementById('create-btn').addEventListener('click', () => {
+      roomInput.value = randomId();
+      navigate();
+    });
+
+    [usernameInput, roomInput].forEach(el =>
+      el.addEventListener('keydown', e => { if (e.key === 'Enter') navigate(); })
+    );
+  </script>
+</body>
+</html>

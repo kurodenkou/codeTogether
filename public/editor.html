@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeTogether — Editor</title>
+
+  <!-- CodeMirror 5 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+
+  <!-- Language modes -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/rust/rust.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/go/go.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/ruby/ruby.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/shell/shell.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/sql/sql.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/markdown/markdown.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/yaml/yaml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/php/php.min.js"></script>
+
+  <!-- Socket.IO client -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.6rem 1rem;
+      background: #1e2130;
+      border-bottom: 1px solid #2d3148;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .logo span { color: #6366f1; }
+
+    .room-badge {
+      background: #2d3148;
+      border-radius: 0.4rem;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.78rem;
+      color: #94a3b8;
+      font-family: monospace;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .room-badge strong { color: #e2e8f0; }
+
+    .spacer { flex: 1; }
+
+    select {
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 0.4rem;
+      color: #e2e8f0;
+      padding: 0.35rem 0.6rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    select:focus { border-color: #6366f1; }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.78rem;
+      color: #94a3b8;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      background: #2d3148;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #22c55e;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .copy-btn {
+      background: #2d3148;
+      border: none;
+      border-radius: 0.4rem;
+      color: #94a3b8;
+      padding: 0.35rem 0.7rem;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .copy-btn:hover { background: #363b5a; color: #e2e8f0; }
+
+    /* ── Editor ── */
+    .editor-wrap {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .CodeMirror {
+      height: 100%;
+      font-size: 14px;
+      font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+      line-height: 1.6;
+    }
+
+    .CodeMirror-scroll { height: 100%; }
+
+    /* ── Status bar ── */
+    .statusbar {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.3rem 1rem;
+      background: #1e2130;
+      border-top: 1px solid #2d3148;
+      font-size: 0.72rem;
+      color: #475569;
+      flex-shrink: 0;
+    }
+
+    #sync-indicator {
+      margin-left: auto;
+      transition: color 0.3s;
+    }
+
+    #sync-indicator.syncing { color: #f59e0b; }
+    #sync-indicator.synced  { color: #22c55e; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #22c55e;
+      color: #fff;
+      padding: 0.45rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+<div class="toolbar">
+  <a class="logo" href="/">Code<span>Together</span></a>
+
+  <div class="room-badge">
+    Room: <strong id="room-label"></strong>
+  </div>
+
+  <div class="spacer"></div>
+
+  <label for="lang-select" style="font-size:0.78rem;color:#94a3b8;">Language:</label>
+  <select id="lang-select">
+    <option value="javascript">JavaScript</option>
+    <option value="typescript">TypeScript</option>
+    <option value="python">Python</option>
+    <option value="c_cpp">C / C++</option>
+    <option value="java">Java</option>
+    <option value="csharp">C#</option>
+    <option value="html">HTML</option>
+    <option value="css">CSS</option>
+    <option value="php">PHP</option>
+    <option value="ruby">Ruby</option>
+    <option value="go">Go</option>
+    <option value="rust">Rust</option>
+    <option value="sql">SQL</option>
+    <option value="shell">Shell / Bash</option>
+    <option value="markdown">Markdown</option>
+    <option value="yaml">YAML</option>
+    <option value="xml">XML</option>
+    <option value="plaintext">Plain Text</option>
+  </select>
+
+  <button class="copy-btn" id="copy-link-btn">Copy invite link</button>
+
+  <div class="status-pill">
+    <span class="dot"></span>
+    <span id="user-count">1 user</span>
+  </div>
+</div>
+
+<div class="editor-wrap">
+  <textarea id="editor"></textarea>
+</div>
+
+<div class="statusbar">
+  <span id="cursor-pos">Ln 1, Col 1</span>
+  <span id="lang-display">JavaScript</span>
+  <span id="sync-indicator" class="synced">Synced</span>
+</div>
+
+<div id="toast">Copied!</div>
+
+<script>
+  // ── Parse URL params ──────────────────────────────────────────
+  const params = new URLSearchParams(location.search);
+  const roomId   = params.get('room')  || 'default';
+  const username = params.get('user')  || 'Anonymous';
+
+  document.getElementById('room-label').textContent = roomId;
+  document.title = `${roomId} — CodeTogether`;
+
+  // ── CodeMirror mode map ───────────────────────────────────────
+  const MODE_MAP = {
+    javascript: { name: 'javascript' },
+    typescript: { name: 'javascript', typescript: true },
+    python:     { name: 'python' },
+    c_cpp:      { name: 'text/x-c++src' },
+    java:       { name: 'text/x-java' },
+    csharp:     { name: 'text/x-csharp' },
+    html:       { name: 'htmlmixed' },
+    css:        { name: 'css' },
+    php:        { name: 'php' },
+    ruby:       { name: 'ruby' },
+    go:         { name: 'go' },
+    rust:       { name: 'rust' },
+    sql:        { name: 'sql' },
+    shell:      { name: 'shell' },
+    markdown:   { name: 'markdown' },
+    yaml:       { name: 'yaml' },
+    xml:        { name: 'xml' },
+    plaintext:  null,
+  };
+
+  // ── Init CodeMirror ───────────────────────────────────────────
+  const cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
+    theme:          'dracula',
+    lineNumbers:    true,
+    tabSize:        2,
+    indentWithTabs: false,
+    lineWrapping:   false,
+    autofocus:      true,
+    mode:           MODE_MAP['javascript'],
+  });
+
+  // Make editor fill its container
+  cm.setSize('100%', '100%');
+
+  // ── Cursor position in status bar ────────────────────────────
+  cm.on('cursorActivity', () => {
+    const cur = cm.getCursor();
+    document.getElementById('cursor-pos').textContent =
+      `Ln ${cur.line + 1}, Col ${cur.ch + 1}`;
+  });
+
+  // ── Language select ───────────────────────────────────────────
+  const langSelect   = document.getElementById('lang-select');
+  const langDisplay  = document.getElementById('lang-display');
+  const syncEl       = document.getElementById('sync-indicator');
+
+  function applyLanguage(lang) {
+    cm.setOption('mode', MODE_MAP[lang] ?? null);
+    langDisplay.textContent = langSelect.querySelector(`[value="${lang}"]`)?.textContent ?? lang;
+    langSelect.value = lang;
+  }
+
+  let suppressLangEvent = false;
+
+  langSelect.addEventListener('change', () => {
+    if (suppressLangEvent) return;
+    const lang = langSelect.value;
+    applyLanguage(lang);
+    socket.emit('language-change', { roomId, language: lang });
+  });
+
+  // ── Socket.IO ─────────────────────────────────────────────────
+  const socket = io();
+
+  socket.emit('join-room', { roomId, username });
+
+  socket.on('room-state', ({ code, language, userCount }) => {
+    suppressCodeEvent = true;
+    cm.setValue(code);
+    suppressCodeEvent = false;
+    applyLanguage(language);
+    updateUserCount(userCount);
+  });
+
+  socket.on('code-update', ({ code }) => {
+    const cur = cm.getCursor();
+    suppressCodeEvent = true;
+    cm.setValue(code);
+    suppressCodeEvent = false;
+    cm.setCursor(cur);
+    flashSync('synced');
+  });
+
+  socket.on('language-update', ({ language }) => {
+    suppressLangEvent = true;
+    applyLanguage(language);
+    suppressLangEvent = false;
+  });
+
+  socket.on('user-joined', ({ userCount }) => updateUserCount(userCount));
+  socket.on('user-left',   ({ userCount }) => updateUserCount(userCount));
+
+  function updateUserCount(n) {
+    document.getElementById('user-count').textContent =
+      `${n} user${n === 1 ? '' : 's'}`;
+  }
+
+  // ── Broadcast code changes ────────────────────────────────────
+  let suppressCodeEvent = false;
+  let syncTimer = null;
+
+  cm.on('change', (_, change) => {
+    if (suppressCodeEvent || change.origin === 'setValue') return;
+    flashSync('syncing');
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(() => {
+      socket.emit('code-change', { roomId, code: cm.getValue() });
+      flashSync('synced');
+    }, 80); // small debounce to batch rapid keystrokes
+  });
+
+  function flashSync(state) {
+    syncEl.className = state;
+    syncEl.textContent = state === 'syncing' ? 'Syncing…' : 'Synced';
+  }
+
+  // ── Copy invite link ──────────────────────────────────────────
+  document.getElementById('copy-link-btn').addEventListener('click', () => {
+    const link = `${location.origin}/?room=${encodeURIComponent(roomId)}`;
+    navigator.clipboard.writeText(link).then(() => showToast('Link copied!'));
+  });
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+</script>
+</body>
+</html>
