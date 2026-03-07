@@ -1,181 +1,240 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CodeTogether</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #0f1117;
-      color: #e2e8f0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .hero {
-      text-align: center;
-      max-width: 480px;
-      width: 100%;
-      padding: 2rem;
-    }
-
-    .logo {
-      font-size: 2.8rem;
-      font-weight: 800;
-      letter-spacing: -1px;
-      margin-bottom: 0.5rem;
-    }
-
-    .logo span { color: #6366f1; }
-
-    .tagline {
-      color: #94a3b8;
-      font-size: 1rem;
-      margin-bottom: 2.5rem;
-    }
-
-    .card {
-      background: #1e2130;
-      border: 1px solid #2d3148;
-      border-radius: 1rem;
-      padding: 2rem;
-    }
-
-    label {
-      display: block;
-      font-size: 0.8rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #94a3b8;
-      margin-bottom: 0.4rem;
-      text-align: left;
-    }
-
-    input {
-      width: 100%;
-      padding: 0.7rem 1rem;
-      background: #0f1117;
-      border: 1px solid #2d3148;
-      border-radius: 0.5rem;
-      color: #e2e8f0;
-      font-size: 1rem;
-      margin-bottom: 1.2rem;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    input:focus { border-color: #6366f1; }
-
-    .btn-group {
-      display: flex;
-      gap: 0.75rem;
-      margin-top: 0.5rem;
-    }
-
-    button {
-      flex: 1;
-      padding: 0.75rem;
-      border: none;
-      border-radius: 0.5rem;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
-    }
-
-    button:active { transform: scale(0.98); }
-
-    .btn-primary {
-      background: #6366f1;
-      color: #fff;
-    }
-
-    .btn-primary:hover { opacity: 0.9; }
-
-    .btn-secondary {
-      background: #2d3148;
-      color: #e2e8f0;
-    }
-
-    .btn-secondary:hover { background: #363b5a; }
-
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      color: #475569;
-      font-size: 0.8rem;
-      margin: 1.2rem 0;
-    }
-
-    .divider::before, .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: #2d3148;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Together</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d0d0f;
+    --surface: #16161a;
+    --border: #2a2a32;
+    --accent: #7c6af7;
+    --accent-hover: #6a57e8;
+    --accent-glow: rgba(124, 106, 247, 0.25);
+    --text: #f0f0f5;
+    --muted: #888899;
+    --input-bg: #1e1e25;
+  }
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    display: flex;
+    flex-direction: column;
+  }
+  /* ── Header ── */
+  header {
+    padding: 2rem 2rem 0;
+    text-align: center;
+  }
+  .wordmark {
+    font-size: 2.4rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    background: linear-gradient(135deg, #fff 30%, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  /* ── Main ── */
+  main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem 2.8rem;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 0 60px var(--accent-glow);
+  }
+  .card h2 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 1.8rem;
+  }
+  .field {
+    margin-bottom: 1.2rem;
+  }
+  label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.45rem;
+  }
+  input[type="text"] {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 1rem;
+    padding: 0.7rem 0.9rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  input[type="text"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+  input[type="text"]::placeholder { color: #44444f; }
+  .room-row {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .room-row input { flex: 1; }
+  .btn-generate {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--accent);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0 1rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-generate:hover {
+    border-color: var(--accent);
+    background: rgba(124,106,247,0.1);
+  }
+  .btn-join {
+    display: block;
+    width: 100%;
+    margin-top: 1.8rem;
+    padding: 0.85rem;
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+  }
+  .btn-join:hover {
+    background: var(--accent-hover);
+    box-shadow: 0 4px 24px var(--accent-glow);
+  }
+  .btn-join:active { transform: scale(0.98); }
+  .error {
+    font-size: 0.8rem;
+    color: #f87171;
+    margin-top: 1rem;
+    min-height: 1.1em;
+    text-align: center;
+  }
+  /* ── Footer ── */
+  footer {
+    padding: 1.4rem 2rem;
+    text-align: center;
+    border-top: 1px solid var(--border);
+  }
+  footer nav {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 0.6rem;
+  }
+  footer a {
+    color: var(--muted);
+    font-size: 0.82rem;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  footer a:hover { color: var(--text); }
+  footer p {
+    font-size: 0.75rem;
+    color: #444450;
+  }
+</style>
 </head>
 <body>
-  <div class="hero">
-    <div class="logo">Code<span>Together</span></div>
-    <p class="tagline">Real-time collaborative code editing in your browser</p>
-
-    <div class="card">
-      <label for="username">Your name</label>
-      <input id="username" type="text" placeholder="e.g. Alice" maxlength="24" />
-
-      <label for="room-id">Room ID</label>
-      <input id="room-id" type="text" placeholder="e.g. my-team-room" maxlength="48" />
-
-      <div class="btn-group">
-        <button class="btn-primary" id="join-btn">Join Room</button>
-        <button class="btn-secondary" id="create-btn">Create New</button>
-      </div>
-
-      <div class="divider">or share a link</div>
-      <p style="color:#475569;font-size:0.82rem;">
-        Rooms are created automatically — just share the same Room ID with your teammates.
-      </p>
+<header>
+  <div class="wordmark">Together</div>
+</header>
+<main>
+  <div class="card">
+    <h2>Join a Room</h2>
+    <div class="field">
+      <label for="name">Your Name</label>
+      <input type="text" id="name" placeholder="Enter your name" autocomplete="off" />
     </div>
+    <div class="field">
+      <label for="room">Room Name</label>
+      <div class="room-row">
+        <input type="text" id="room" placeholder="Enter or generate a room" autocomplete="off" />
+        <button class="btn-generate" onclick="generateRoom()">⚡ Generate</button>
+      </div>
+    </div>
+    <div class="error" id="error"></div>
+    <button class="btn-join" onclick="joinRoom()">Join Room →</button>
   </div>
-
-  <script>
-    const usernameInput = document.getElementById('username');
-    const roomInput = document.getElementById('room-id');
-
-    // Pre-fill from URL params if present
-    const params = new URLSearchParams(location.search);
-    if (params.get('room')) roomInput.value = params.get('room');
-
-    function randomId() {
-      return Math.random().toString(36).slice(2, 8);
-    }
-
-    function navigate() {
-      const username = usernameInput.value.trim() || 'Anonymous';
-      const room = roomInput.value.trim();
-      if (!room) { roomInput.focus(); return; }
-      const url = `/editor.html?room=${encodeURIComponent(room)}&user=${encodeURIComponent(username)}`;
-      location.href = url;
-    }
-
-    document.getElementById('join-btn').addEventListener('click', navigate);
-
-    document.getElementById('create-btn').addEventListener('click', () => {
-      roomInput.value = randomId();
-      navigate();
-    });
-
-    [usernameInput, roomInput].forEach(el =>
-      el.addEventListener('keydown', e => { if (e.key === 'Enter') navigate(); })
-    );
-  </script>
+</main>
+<footer>
+  <nav>
+    <a href="#">About</a>
+    <a href="#">GitHub</a>
+    <a href="#">Privacy</a>
+    <a href="#">Help</a>
+  </nav>
+  <p>© 2026 Together. Runs on Windows, Linux &amp; ChromeOS.</p>
+</footer>
+<script>
+  const adjectives = [
+    "swift","calm","bold","bright","cold","dark","deep","dry","fair",
+    "fast","firm","free","full","glad","gold","good","gray","hard",
+    "high","keen","kind","lean","light","long","loud","low","mild",
+    "neat","nice","open","pale","pure","quick","rare","rich","round",
+    "safe","sharp","short","slim","soft","still","tall","thin","warm",
+    "wide","wild","wise","young","blue","green","red","pink","black",
+    "white","iron","oak","ash","stone","storm","frost","dawn","dusk"
+  ];
+  const nouns = [
+    "meadow","bridge","canyon","cliff","cloud","coast","creek","crest",
+    "delta","dune","falls","field","fjord","forge","glade","grove",
+    "haven","heath","inlet","isle","knoll","lake","ledge","marsh",
+    "mesa","moor","peak","pine","plain","pond","range","reef","ridge",
+    "river","rock","shore","slope","sound","spring","stone","stream",
+    "tide","trail","vale","valley","vault","vent","vista","wave",
+    "wood","yard","bay","cape","cave","cove","crag","ford","glen",
+    "hill","holm","loch","mead","mire","moss","ness","pass","pool"
+  ];
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+  function generateRoom() {
+    document.getElementById('room').value = pick(adjectives) + '-' + pick(nouns);
+    document.getElementById('error').textContent = '';
+  }
+  function joinRoom() {
+    const name = document.getElementById('name').value.trim();
+    const room = document.getElementById('room').value.trim();
+    const err  = document.getElementById('error');
+    if (!name && !room) { err.textContent = 'Please enter your name and a room name.'; return; }
+    if (!name)          { err.textContent = 'Please enter your name.'; return; }
+    if (!room)          { err.textContent = 'Please enter or generate a room name.'; return; }
+    err.textContent = '';
+    const url = `/editor.html?room=${encodeURIComponent(room)}&user=${encodeURIComponent(name)}`;
+    location.href = url;
+  }
+</script>
 </body>
 </html>
